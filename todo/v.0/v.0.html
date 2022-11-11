@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko-KR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo App Ver.0</title>
+    <style>
+      input[type='checkbox']:checked + span {
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body>
+    <form class="todo-form">
+      <input type="text" class="todo-input" name="content" />
+      <button class="todo-input-btn">ADD</button>
+    </form>
+    <ul class="todos-container"></ul>
+  </body>
+  <script>
+    /* ----------------------------------- 데이터 ---------------------------------- */
+    // 데이터와 요소를 변수에 할당했다.
+    let todos = [];
+    const $todosCon = document.querySelector('.todos-container');
+
+    /* ----------------------------------- 렌더링 ---------------------------------- */
+    const render = () => {
+      $todosCon.innerHTML = todos
+        .map(
+          ({ id, content, completed }) =>
+            `
+            <li li id="${id}">
+              <input type="checkbox" ${completed ? 'checked' : ''}>
+              <span>${content}</span>
+              <button>X</button>
+            </li>
+            `
+        )
+        .join('');
+    };
+
+    /* --------------------------------- 데이터를 변경 -------------------------------- */
+    const renderTodos = changedTodos => {
+      todos = changedTodos;
+      render();
+    };
+
+    const generateMaxId = () => Math.max(...todos.map(todo => todo.id), 0) + 1;
+    const addTodo = content => renderTodos([{ id: generateMaxId(), content, completed: false }, ...todos]);
+
+    const removeTodo = id => renderTodos(todos.filter(todo => todo.id !== +id));
+
+    const fetchTodos = () =>
+      // 데이터를 부르는 작업은 그냥 mock데이터를 넣음으로써 대체
+      renderTodos([
+        { id: 1, content: 'HTML', completed: false },
+        { id: 2, content: 'CSS', completed: false },
+        { id: 3, content: 'JAVASCRIPT', completed: false },
+      ]);
+
+    /* ----------------------------------- 이벤트 ---------------------------------- */
+    window.addEventListener('DOMContentLoaded', fetchTodos);
+
+    document.querySelector('.todo-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const { content } = e.target;
+      if (content.value.trim() === '') return;
+      addTodo(content.value);
+      content.value = '';
+    });
+
+    $todosCon.addEventListener('click', e => {
+      if (e.target.tagName === 'BUTTON') removeTodo(e.target.parentNode.id);
+    });
+  </script>
+</html>
